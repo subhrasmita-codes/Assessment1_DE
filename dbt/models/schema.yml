@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: stg_weather_daily
+    description: Cleaned daily weather data from the raw source.
+    columns:
+      - name: date
+        description: Weather date.
+        tests:
+          - not_null
+
+      - name: city
+        description: City name.
+        tests:
+          - not_null
+
+      - name: temperature_2m_max
+        description: Maximum daily temperature.
+        tests:
+          - not_null
+
+      - name: temperature_2m_min
+        description: Minimum daily temperature.
+        tests:
+          - not_null
+
+      - name: precipitation_sum
+        description: Total daily precipitation.
+        tests:
+          - not_null
+
+  - name: fct_city_daily
+    description: Business-friendly daily weather mart by city.
+    columns:
+      - name: date
+        description: Weather date.
+        tests:
+          - not_null
+
+      - name: city
+        description: City name.
+        tests:
+          - not_null
+
+      - name: temperature_2m_max
+        description: Maximum daily temperature.
+        tests:
+          - not_null
+
+      - name: temperature_2m_min
+        description: Minimum daily temperature.
+        tests:
+          - not_null
+
+      - name: precipitation_sum
+        description: Total daily precipitation.
+        tests:
+          - not_null
