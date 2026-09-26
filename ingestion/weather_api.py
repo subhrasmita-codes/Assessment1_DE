@@ -1,23 +1,20 @@
 import requests
+import yaml
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-
 BASE_URL = "https://archive-api.open-meteo.com/v1/archive"
+CITIES_FILE = "/opt/airflow/config/cities.yml"
 
-CITIES = {
-    "Bhubaneswar": (20.2961, 85.8245),
-    "Delhi": (28.6139, 77.2090),
-    "Mumbai": (19.0760, 72.8777),
-}
+
+def load_cities():
+    with open(CITIES_FILE, "r", encoding="utf-8") as file:
+        config = yaml.safe_load(file)
+
+    return config["cities"]
 
 
 def fetch_daily(logical_date):
-    """
-    Fetch daily weather data for all configured cities
-    for one logical date.
-    """
-
     session = requests.Session()
 
     retry = Retry(
@@ -33,10 +30,10 @@ def fetch_daily(logical_date):
 
     rows = []
 
-    for city, (latitude, longitude) in CITIES.items():
+    for city in load_cities():
         params = {
-            "latitude": latitude,
-            "longitude": longitude,
+            "latitude": city["latitude"],
+            "longitude": city["longitude"],
             "start_date": logical_date,
             "end_date": logical_date,
             "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum",
@@ -51,15 +48,14 @@ def fetch_daily(logical_date):
         response.raise_for_status()
 
         data = response.json()
-
         daily = data["daily"]
 
         rows.append(
             {
                 "date": daily["time"][0],
-                "city": city,
-                "latitude": latitude,
-                "longitude": longitude,
+                "city": city["name"],
+                "latitude": city["latitude"],
+                "longitude": city["longitude"],
                 "temperature_2m_max": daily["temperature_2m_max"][0],
                 "temperature_2m_min": daily["temperature_2m_min"][0],
                 "precipitation_sum": daily["precipitation_sum"][0],
